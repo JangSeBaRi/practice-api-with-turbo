@@ -11,16 +11,16 @@ context: 로그인한 사용자. DB Access 등의 중요한 정보들
 
 const messageResolver = {
   Query: {
-    messages: (parent, args, { db }) => {
-      // console.log({ parent, args, context })
-      return db.messages
+    messages: (parent, { cursor = '' }, { db: { messages } }) => {
+      const fromIndex = messages.findIndex(msg => msg.id === cursor) + 1
+      return messages.slice(fromIndex, fromIndex + 15) || []
     },
-    message: (parent, { id = '' }, { db }) => {
-      return db.messages.find(msg => msg.id === id)
+    message: (parent, { id = '' }, { db: messages }) => {
+      return messages.find(msg => msg.id === id)
     },
   },
   Mutation: {
-    createMessage: (parent, { text, userId }, { db }) => {
+    createMessage: (parent, { text, userId }, { db: { messages } }) => {
       if (!userId) throw Error('사용자가 없습니다.')
       const newMsg = {
         id: v4(),
@@ -28,28 +28,31 @@ const messageResolver = {
         userId,
         timestamp: Date.now(),
       }
-      db.messages.unshift(newMsg)
-      setMsgs(db.messages)
+      messages.unshift(newMsg)
+      setMsgs(messages)
       return newMsg
     },
-    updateMessage: (parent, { id, text, userId }, { db }) => {
-      const targetIndex = db.messages.findIndex(msg => msg.id === id)
+    updateMessage: (parent, { id, text, userId }, { db: { messages } }) => {
+      const targetIndex = messages.findIndex(msg => msg.id === id)
       if (targetIndex < 0) throw Error('메시지가 없습니다.')
-      if (db.messages[targetIndex].userId !== userId) throw Error('사용자가 다릅니다.')
+      if (messages[targetIndex].userId !== userId) throw Error('사용자가 다릅니다.')
 
-      const newMsg = { ...db.messages[targetIndex], text }
-      db.messages.splice(targetIndex, 1, newMsg)
-      setMsgs(db.messages)
+      const newMsg = { ...messages[targetIndex], text }
+      messages.splice(targetIndex, 1, newMsg)
+      setMsgs(messages)
       return newMsg
     },
-    deleteMessage: (parent, { id, userId }, { db }) => {
-      const targetIndex = db.messages.findIndex(msg => msg.id === id)
+    deleteMessage: (parent, { id, userId }, { db: { messages } }) => {
+      const targetIndex = messages.findIndex(msg => msg.id === id)
       if (targetIndex < 0) throw '메시지가 없습니다.'
-      if (db.messages[targetIndex].userId !== userId) throw '사용자가 다릅니다.'
-      db.messages.splice(targetIndex, 1)
-      setMsgs(db.messages)
+      if (messages[targetIndex].userId !== userId) throw '사용자가 다릅니다.'
+      messages.splice(targetIndex, 1)
+      setMsgs(messages)
       return id
     },
+  },
+  Message: {
+    user: (msg, args, { db: { users } }) => users[msg.userId],
   },
 }
 
