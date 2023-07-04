@@ -1,5 +1,5 @@
 {
-  "name": "no-server-client",
+  "name": "rest-api-client",
   "version": "0.1.0",
   "private": true,
   "scripts": {
