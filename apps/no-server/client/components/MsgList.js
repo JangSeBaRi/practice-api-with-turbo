@@ -4,7 +4,7 @@ import MsgInput from '@/components/MsgInput'
 
 const MsgList = () => {
 
-  const UserIds = ['roy', 'jay']
+  const UserIds = ['jang', 'sejin']
   const getRandomUserId = () => UserIds[Math.round(Math.random())]
 
   useEffect(() => {
