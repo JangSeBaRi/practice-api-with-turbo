@@ -70,14 +70,14 @@ const MsgList = ({ smsgs }) => {
     setMsgs(data.pages)
   }, [data?.pages])
 
+  useEffect(() => {
+    if (intersecting && hasNextPage) fetchNextPage()
+  }, [intersecting, hasNextPage])
+
   if (isError) {
     console.error(error)
     return null
   }
-
-  useEffect(() => {
-    if (intersecting && hasNextPage) fetchNextPage()
-  }, [intersecting, hasNextPage])
 
   return (
     <>
